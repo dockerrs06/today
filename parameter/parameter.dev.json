@@ -7,18 +7,18 @@
     },
 
     "dev_ls_properties_typeProperties_serviceEndpoint": {
-      "value": "https://devstaccouint.blob.core.windows.net/"
+      "value": "https://devstaccount.blob.core.windows.net/"
     },
 
     "source_ds_properties_parameters_folderName_defaultValue": {
-      "value": "sourcedata"
+      "value": "source"
     },
     "source_ds_properties_parameters_fileName_defaultValue": {
       "value": "employee_data_dev.csv"
     },
 
     "destination_ds_properties_parameters_folderName_defaultValue": {
-      "value": "dest"
+      "value": "destination"
     },
     "destination_ds_properties_parameters_fileName_defaultValue": {
       "value": "employee_data_dev.csv"
