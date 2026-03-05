@@ -39,7 +39,7 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "sundar",
+						"name": "sundarr",
 						"type": "Copy",
 						"dependsOn": [],
 						"policy": {
