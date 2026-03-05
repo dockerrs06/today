@@ -18,7 +18,7 @@
     },
 
     "destination_ds_properties_parameters_folderName_defaultValue": {
-      "value": "dest"
+      "value": "destination"
     },
     "destination_ds_properties_parameters_fileName_defaultValue": {
       "value": "employee_data_itg.csv"
