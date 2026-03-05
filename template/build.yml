@@ -1,0 +1,626 @@
+
+# parameters:
+#   - name: branchName
+#     type: string
+
+
+# jobs:
+#   - job: BuildJob
+#     displayName: "Build (Validate + Export ARM)"
+#     steps:
+#       - checkout: self
+
+#       - script: |
+#           echo "Branch detected: ${{ parameters.branchName }}"
+#           echo "##vso[task.setvariable variable=branchName]${{ parameters.branchName }}"
+#         displayName: 🧭 Fetch Branch details
+
+#       - task: NodeTool@0
+#         inputs:
+#           versionSpec: '18.x'
+#         displayName: 'Install Node.js'
+
+#       - task: Npm@1
+#         inputs:
+#           command: 'install'
+#           workingDir: '$(Build.Repository.LocalPath)' #replace with the package.json folder
+#           verbose: true
+#         displayName: 'Install npm package'
+
+#       # - task: Npm@1
+#       #   inputs:
+#       #     command: 'custom'
+#       #     workingDir: '$(Build.Repository.LocalPath)' #replace with the package.json folder
+#       #     customCommand: 'run build validate $(Build.Repository.LocalPath) /subscriptions/$(devSubscriptionId)/resourceGroups/$(devResourceGroup)/providers/Microsoft.DataFactory/factories/$(datafactory_dev)'
+#       #   displayName: 'Validate'
+#       - task: Npm@1
+#         inputs:
+#           command: 'custom'
+#           workingDir: '$(Build.Repository.LocalPath)'
+#           customCommand: 'run build validate $(Build.Repository.LocalPath) /subscriptions/$(devSubscriptionId)/resourceGroups/$(devResourceGroup)/providers/Microsoft.DataFactory/factories/$(datafactory_dev)'
+#         displayName: 'Validate'
+
+
+#       # - task: Npm@1
+#       #   inputs:
+#       #     command: 'custom'
+#       #     workingDir: '$(Build.Repository.LocalPath)' #replace with the package.json folder
+#       #     customCommand: 'run build validate $(Build.Repository.LocalPath)/subscriptions/$(devSubscriptionId)/resourceGroups/$(devResourceGroup)/providers/Microsoft.DataFactory/factories/$(datafactory_dev)'
+#       #   displayName: 'Validate'
+
+
+
+#       - task: Npm@1
+#         inputs:
+#           command: 'custom'
+#           workingDir: '$(Build.Repository.LocalPath)' #replace with the package.json folder
+#           customCommand: 'run build export $(Build.Repository.LocalPath) /subscriptions/$(devSubscriptionId)/resourceGroups/$(devResourceGroup)/providers/Microsoft.DataFactory/factories/$(datafactory_dev) "ArmTemplate"'
+#         displayName: 'Validate and Generate ARM template'
+    
+    
+#       - task: CopyFiles@2
+#         displayName: 'Copy ARM templates to artifact staging'
+#         inputs:
+#           SourceFolder: '$(Build.Repository.LocalPath)\ArmTemplate'
+#           Contents: '**'
+#           TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+#       - task: CopyFiles@2
+#         displayName: 'Copy script folder to artifact'
+#         inputs:
+#           SourceFolder: '$(Build.Repository.LocalPath)\script'
+#           Contents: '**'
+#           TargetFolder: '$(Build.ArtifactStagingDirectory)\script'
+    
+
+
+#       - task: PublishBuildArtifacts@1
+#         inputs:
+#           PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+#           ArtifactName: 'drop'
+#           publishLocation: 'Container'
+
+parameters:
+  - name: branchName
+    type: string
+
+jobs:
+  - job: BuildJob
+    displayName: "Build (Validate + Export ARM)"
+    steps:
+
+      - checkout: self
+
+      # -----------------------------
+      # Branch info
+      # -----------------------------
+      - script: |
+          echo "Branch detected: ${{ parameters.branchName }}"
+          echo "##vso[task.setvariable variable=branchName]${{ parameters.branchName }}"
+        displayName: "Fetch Branch details"
+
+      # -----------------------------
+      # Node install
+      # -----------------------------
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '18.x'
+        displayName: 'Install Node.js'
+
+      # -----------------------------
+      # npm install (package.json folder)
+      # -----------------------------
+      - task: Npm@1
+        inputs:
+          command: 'install'
+          workingDir: '$(Build.SourcesDirectory)'
+          verbose: true
+        displayName: 'Install npm packages'
+
+      # -----------------------------
+      # ADF Validate
+      # -----------------------------
+      - task: Npm@1
+        displayName: 'ADF Validate'
+        inputs:
+          command: 'custom'
+          workingDir: '$(Build.SourcesDirectory)'
+          customCommand: >
+            run build validate
+            $(Build.SourcesDirectory)
+            /subscriptions/$(devSubscriptionId)/resourceGroups/$(devResourceGroup)/providers/Microsoft.DataFactory/factories/$(datafactory_dev)
+
+      # -----------------------------
+      # ADF Export ARM
+      # -----------------------------
+      - task: Npm@1
+        displayName: 'ADF Export ARM'
+        inputs:
+          command: 'custom'
+          workingDir: '$(Build.SourcesDirectory)'
+          customCommand: >
+            run build export
+            $(Build.SourcesDirectory)
+            /subscriptions/$(devSubscriptionId)/resourceGroups/$(devResourceGroup)/providers/Microsoft.DataFactory/factories/$(datafactory_dev)
+            ArmTemplate
+
+      # -----------------------------
+      # Copy ARM output
+      # -----------------------------
+      - task: CopyFiles@2
+        displayName: 'Copy ARM templates'
+        inputs:
+          SourceFolder: '$(Build.SourcesDirectory)/ArmTemplate'
+          Contents: '**'
+          TargetFolder: '$(Build.ArtifactStagingDirectory)/ArmTemplate'
+
+      # -----------------------------
+      # Copy Pre/Post deploy scripts
+      # -----------------------------
+      - task: CopyFiles@2
+        displayName: 'Copy deployment scripts'
+        inputs:
+          SourceFolder: '$(Build.SourcesDirectory)/script'
+          Contents: '**'
+          TargetFolder: '$(Build.ArtifactStagingDirectory)/script'
+
+      # -----------------------------
+      # Publish artifact
+      # -----------------------------
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish build artifact'
+        inputs:
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          ArtifactName: 'drop'
+          publishLocation: 'Container'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ==========================================
+# Build Template – ADF Publish Artifact
+# ==========================================
+# resources:
+#   repositories:
+#     - repository: adfpub
+#       type: github
+#       name: dockerrs06/tamiz-adf
+#       ref: refs/heads/${{ parameters.branchName }}
+     
+
+# parameters:
+#   - name: branchName
+#     type: string
+# # =====================================================
+# # Build Template — ADF Publish ARM Artifact
+# # =====================================================
+
+# jobs:
+# - job: BuildADF
+#   displayName: Build ADF ARM Artifact
+
+#   steps:
+
+#   # ---------------- Checkout ADF Publish Repo ----------------
+#   - checkout: adfpub
+#     clean: true
+#     path: adf_publish_repo
+
+    
+#   - script: |
+#       echo "Branch detected: ${{ parameters.branchName }}"
+#       echo "##vso[task.setvariable variable=branchName]${{ parameters.branchName }}"
+#     displayName: "Fetch Branch Details"
+
+
+
+#   # ---------------- Debug — show structure ----------------
+#   - powershell: |
+#       Write-Host "==== PIPELINE WORKSPACE ===="
+#       Get-ChildItem "$(Pipeline.Workspace)"
+
+#       Write-Host "==== ADF PUBLISH REPO TREE ===="
+#       Get-ChildItem -Recurse "$(Pipeline.Workspace)/adf_publish_repo"
+#     displayName: "DEBUG — Show Repo Structure"
+
+#       # Copy ONLY from actual publish folder
+#   # - task: CopyFiles@2
+#   #   displayName: Copy ADF Publish Output
+#   #   inputs:
+#   #     SourceFolder: '$(Pipeline.Workspace)/adf_publish_repo/adf_publish'
+#   #     Contents: '**'
+#   #     TargetFolder: '$(Build.ArtifactStagingDirectory)/adf_publish'
+
+#   - task: CopyFiles@2
+#     displayName: Copy Publish Branch Output
+#     inputs:
+#       SourceFolder: '$(Pipeline.Workspace)/adf_publish_repo'
+#       Contents: '**'
+#       TargetFolder: '$(Build.ArtifactStagingDirectory)/adf_publish'
+
+#   # ---------------- Copy ARM Templates ----------------
+#   # Recursive pattern — works for any publish branch layout
+#   # - task: CopyFiles@2
+#   #   displayName: Copy ARM Templates (Recursive Safe)
+#   #   inputs:
+#   #     SourceFolder: '$(Pipeline.Workspace)/adf_publish_repo'
+#   #     Contents: |
+#   #       **/ARMTemplateForFactory.json
+#   #       **/ARMTemplateParametersForFactory.json
+#   #       **/linkedTemplates/**
+#   #       **/script/**
+#   #     TargetFolder: '$(Build.ArtifactStagingDirectory)/adf_publish'
+
+
+#   # ---------------- Validate Copy Result ----------------
+#   - powershell: |
+#       if (Test-Path "$(Build.ArtifactStagingDirectory)/adf_publish") {
+#         Write-Host "ADF artifact folder created successfully"
+#         Get-ChildItem -Recurse "$(Build.ArtifactStagingDirectory)/adf_publish"
+#       }
+#       else {
+#         Write-Error "ADF artifact folder NOT created — copy step failed"
+#       }
+#     displayName: Validate Artifact Folder
+
+
+#   # ---------------- Publish Artifact ----------------
+#   - task: PublishBuildArtifacts@1
+#     displayName: Publish ADF Artifact
+#     inputs:
+#       PathtoPublish: '$(Build.ArtifactStagingDirectory)/adf_publish'
+#       ArtifactName: adf_publish
+#       publishLocation: Container
+
+
+
+
+
+# parameters:
+#   - name: branchName
+#     type: string
+
+# jobs:
+#   - job: BuildJob
+#     displayName: "Build (Validate + Export ARM)"
+
+#     steps:
+#       # Checkout collaboration branch (self)
+#       - checkout: self
+
+#       # Checkout ADF publish branch repo resource (alias: adfpub)
+#       - checkout: adfpub
+#         clean: true
+
+#       # Detect branch
+#       - script: |
+#           echo "Branch detected: ${{ parameters.branchName }}"
+#           echo "##vso[task.setvariable variable=branchName]${{ parameters.branchName }}"
+#         displayName: "Fetch Branch Details"
+
+#       # List publish branch files
+#       # - script: |
+#       #     echo "Listing ADF publish artifacts from adf_publish branch"
+#       #     ls -la adfpub
+#       #   displayName: "List ADF Publish Folder"
+
+#       # Build info message
+#       - script: |
+#           echo "ADF validation handled by publish branch."
+#           echo "Build stage acts as quality gate only."
+#         displayName: "Build Stage Info"
+
+#       # PowerShell listing for full tree
+#       - powershell: |
+#           Write-Host "Listing adf_publish branch contents:"
+#           Get-ChildItem -Recurse "$(Build.SourcesDirectory)/adfpub" | Select-Object FullName
+#         displayName: "List adf_publish Files"
+
+#       # Copy ARM templates from adf_publish branch
+#       - task: CopyFiles@2
+#         displayName: "Copy ARM from adf_publish"
+#         inputs:
+#           SourceFolder: '$(Build.SourcesDirectory)/tamiz-adf'
+#           Contents: |
+#             ARMTemplateForFactory.json
+#             ARMTemplateParametersForFactory.json
+#             linkedTemplates/**
+#             script/**
+#           TargetFolder: '$(Build.ArtifactStagingDirectory)/adf_publish'
+
+#       # Optional fallback copy if script folder not in publish branch
+#       - task: CopyFiles@2
+#         displayName: "Fallback: Copy script Folder from Collaboration Branch"
+#         condition: succeededOrFailed()
+#         inputs:
+#           SourceFolder: '$(Build.SourcesDirectory)/script'
+#           Contents: '**'
+#           TargetFolder: '$(Build.ArtifactStagingDirectory)/adf_publish/script'
+
+#       # Publish artifact
+#       - task: PublishBuildArtifacts@1
+#         displayName: "Publish ADF ARM Artifact"
+#         inputs:
+#           PathtoPublish: '$(Build.ArtifactStagingDirectory)/adf_publish'
+#           ArtifactName: 'adf_publish'
+#           publishLocation: 'Container'
+
+
+
+
+# parameters:
+#   - name: branchName
+#     type: string
+
+# jobs:
+#   - job: BuildJob
+#     displayName: "Build (Validate + Export ARM)"
+#     steps:
+#       - checkout: self
+#       - script: |
+#       echo "ADF validation handled by publish branch."
+#       echo "Build stage acts as quality gate only."
+
+      # - script: |
+      #     echo "Branch detected: ${{ parameters.branchName }}"
+      #     echo "##vso[task.setvariable variable=branchName]${{ parameters.branchName }}"
+      #   displayName: 🧭 Fetch Branch details
+
+      # - task: NodeTool@0
+      #   inputs:
+      #     versionSpec: '22.x'
+      #   displayName: 'Install Node.js'
+
+      # - task: Npm@1
+      #   inputs:
+      #     command: 'install'
+      #     workingDir: '$(Build.Repository.LocalPath)'
+      #     verbose: true
+      #   displayName: 'Install npm package'
+
+      # - task: Npm@1
+      #   inputs:
+      #     command: 'custom'
+      #     workingDir: '$(Build.Repository.LocalPath)'
+      #     customCommand: 'run build validate $(Build.Repository.LocalPath) /subscriptions/$(devSubscriptionId)/resourceGroups/$(resoucegroup_dev)/providers/Microsoft.DataFactory/factories/$(datafactory_dev)'
+      #   displayName: 'Validate'
+
+      # - task: Npm@1
+      #   inputs:
+      #     command: 'custom'
+      #     workingDir: '$(Build.Repository.LocalPath)'
+      #     customCommand: 'run build export $(Build.Repository.LocalPath) /subscriptions/$(devSubscriptionId)/resourceGroups/$(resoucegroup_dev)/providers/Microsoft.DataFactory/factories/$(datafactory_dev) "ArmTemplate"'
+      #   displayName: 'Generate ARM Template'
+
+      # # Copy ARM templates to artifact staging
+      # - task: CopyFiles@2
+      #   displayName: 'Copy ARM templates to artifact staging'
+      #   inputs:
+      #     SourceFolder: '$(Build.Repository.LocalPath)/ArmTemplate'
+      #     Contents: '**'
+      #     TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+      # # COPY YOUR SCRIPT FOLDER (the missing piece!)
+      # - task: CopyFiles@2
+      #   displayName: 'Copy script folder to artifact'
+      #   inputs:
+      #     SourceFolder: '$(Build.Repository.LocalPath)/script'
+      #     Contents: '**'
+      #     TargetFolder: '$(Build.ArtifactStagingDirectory)/script'
+
+      # # Copy template folder
+      # - task: CopyFiles@2
+      #   displayName: 'Copy template folder to artifact'
+      #   inputs:
+      #     SourceFolder: '$(Build.Repository.LocalPath)/template'
+      #     Contents: '**'
+      #     TargetFolder: '$(Build.ArtifactStagingDirectory)/template'
+
+      # # Publish artifacts
+      # - task: PublishBuildArtifacts@1
+      #   inputs:
+      #     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      #     ArtifactName: 'drop'
+      #     publishLocation: 'Container'
+# parameters:
+#   - name: branchName
+#     type: string
+
+
+# jobs:
+#   - job: BuildJob
+#     displayName: "Build (Validate + Export ARM)"
+#     steps:
+#       - checkout: self
+
+#       - script: |
+#           echo "Branch detected: ${{ parameters.branchName }}"
+#           echo "##vso[task.setvariable variable=branchName]${{ parameters.branchName }}"
+#         displayName: 🧭 Fetch Branch details
+
+#       - task: NodeTool@0
+#         inputs:
+#           versionSpec: '22.x'
+#         displayName: 'Install Node.js'
+
+#       - task: Npm@1
+#         inputs:
+#           command: 'install'
+#           workingDir: '$(Build.Repository.LocalPath)' #replace with the package.json folder
+#           verbose: true
+#         displayName: 'Install npm package'
+
+
+
+#       - task: Npm@1
+#         inputs:
+#           command: 'custom'
+#           workingDir: '$(Build.Repository.LocalPath)' #replace with the package.json folder
+#           customCommand: 'run build validate $(Build.Repository.LocalPath) /subscriptions/$(devSubscriptionId)/resourceGroups/$(resoucegroup_dev)/providers/Microsoft.DataFactory/factories/$(datafactory_dev)'
+#         displayName: 'Validate'
+
+
+
+#       - task: Npm@1
+#         inputs:
+#           command: 'custom'
+#           workingDir: '$(Build.Repository.LocalPath)' #replace with the package.json folder
+#           customCommand: 'run build export $(Build.Repository.LocalPath) /subscriptions/$(devSubscriptionId)/resourceGroups/$(resoucegroup_dev)/providers/Microsoft.DataFactory/factories/$(datafactory_dev) "ArmTemplate"'
+#         displayName: 'Validate and Generate ARM template'
+    
+    
+#       - task: CopyFiles@2
+#         displayName: 'Copy ARM templates to artifact staging'
+#         inputs:
+#           SourceFolder: '$(Build.Repository.LocalPath)\ArmTemplate'
+#           Contents: '**'
+#           TargetFolder: '$(Build.ArtifactStagingDirectory)'
+          
+#       - task: CopyFiles@2
+#         displayName: 'Copy template folder to artifact'
+#         inputs:
+#           SourceFolder: '$(Build.Repository.LocalPath)/template'
+#           Contents: '**'
+#           TargetFolder: '$(Build.ArtifactStagingDirectory)/template'
+
+
+#       - task: PublishBuildArtifacts@1
+#         inputs:
+#           PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+#           ArtifactName: 'drop'
+#           publishLocation: 'Container'
+
+
+
+       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# parameters:
+#   - name: branchName
+#     type: string
+
+
+# jobs:
+#   - job: BuildJob
+#     displayName: "Build (Validate + Export ARM)"
+#     steps:
+#       - checkout: self
+
+#       - script: |
+#           echo "Branch detected: ${{ parameters.branchName }}"
+#           echo "##vso[task.setvariable variable=branchName]${{ parameters.branchName }}"
+#         displayName: 🧭 Fetch Branch details
+
+#       - task: NodeTool@0
+#         inputs:
+#           versionSpec: '22.x'
+#         displayName: 'Install Node.js'
+
+#       - task: Npm@1
+#         inputs:
+#           command: 'install'
+#           workingDir: '$(Build.Repository.LocalPath)' #replace with the package.json folder
+#           verbose: true
+#         displayName: 'Install npm package'
+
+
+
+#       - task: Npm@1
+#         inputs:
+#           command: 'custom'
+#           workingDir: '$(Build.Repository.LocalPath)' #replace with the package.json folder
+#           customCommand: 'run build validate $(Build.Repository.LocalPath) /subscriptions/$(devSubscriptionId)/resourceGroups/$(devResourceGroup)/providers/Microsoft.DataFactory/factories/$(factoryName)'
+#         displayName: 'Validate'
+
+
+
+#       - task: Npm@1
+#         inputs:
+#           command: 'custom'
+#           workingDir: '$(Build.Repository.LocalPath)' #replace with the package.json folder
+#           customCommand: 'run build export $(Build.Repository.LocalPath) /subscriptions/$(devSubscriptionId)/resourceGroups/$(devResourceGroup)/providers/Microsoft.DataFactory/factories/$(factoryName) "ArmTemplate"'
+#         displayName: 'Validate and Generate ARM template'
+    
+    
+#       - task: CopyFiles@2
+#         displayName: 'Copy ARM templates to artifact staging'
+#         inputs:
+#           SourceFolder: '$(Build.Repository.LocalPath)\ArmTemplate'
+#           Contents: '**'
+#           TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    
+
+
+#       - task: PublishBuildArtifacts@1
+#         inputs:
+#           PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+#           ArtifactName: 'drop'
+#           publishLocation: 'Container'
+
+
+
+       
