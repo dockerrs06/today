@@ -10,6 +10,22 @@
 		"dev_ls_properties_typeProperties_serviceEndpoint": {
 			"type": "string",
 			"defaultValue": "https://devstaccouint.blob.core.windows.net/"
+		},
+		"destination_ds_properties_parameters_folderName_defaultValue": {
+			"type": "string",
+			"defaultValue": "source"
+		},
+		"destination_ds_properties_parameters_fileName_defaultValue": {
+			"type": "string",
+			"defaultValue": "employee_data_dev.csv"
+		},
+		"source_ds_properties_parameters_folderName_defaultValue": {
+			"type": "string",
+			"defaultValue": "source"
+		},
+		"source_ds_properties_parameters_fileName_defaultValue": {
+			"type": "string",
+			"defaultValue": "employee_data_dev.csv"
 		}
 	},
 	"variables": {
@@ -42,11 +58,11 @@
 				"parameters": {
 					"folderName": {
 						"type": "string",
-						"defaultValue": "source"
+						"defaultValue": "[parameters('destination_ds_properties_parameters_folderName_defaultValue')]"
 					},
 					"fileName": {
 						"type": "string",
-						"defaultValue": "employee_data_dev.csv"
+						"defaultValue": "[parameters('destination_ds_properties_parameters_fileName_defaultValue')]"
 					}
 				},
 				"annotations": [],
@@ -86,11 +102,11 @@
 				"parameters": {
 					"folderName": {
 						"type": "string",
-						"defaultValue": "source"
+						"defaultValue": "[parameters('source_ds_properties_parameters_folderName_defaultValue')]"
 					},
 					"fileName": {
 						"type": "string",
-						"defaultValue": "employee_data_dev.csv"
+						"defaultValue": "[parameters('source_ds_properties_parameters_fileName_defaultValue')]"
 					}
 				},
 				"annotations": [],

@@ -5,6 +5,18 @@
 		"factoryName": {
 			"value": "dev-adf-env-001"
 		},
+		"destination_ds_properties_parameters_folderName_defaultValue": {
+			"value": "source"
+		},
+		"destination_ds_properties_parameters_fileName_defaultValue": {
+			"value": "employee_data_dev.csv"
+		},
+		"source_ds_properties_parameters_folderName_defaultValue": {
+			"value": "source"
+		},
+		"source_ds_properties_parameters_fileName_defaultValue": {
+			"value": "employee_data_dev.csv"
+		},
 		"dev_ls_properties_typeProperties_serviceEndpoint": {
 			"value": "https://devstaccouint.blob.core.windows.net/"
 		}

@@ -7,6 +7,22 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "dev-adf-env-001"
 		},
+		"destination_ds_properties_parameters_folderName_defaultValue": {
+			"type": "string",
+			"defaultValue": "source"
+		},
+		"destination_ds_properties_parameters_fileName_defaultValue": {
+			"type": "string",
+			"defaultValue": "employee_data_dev.csv"
+		},
+		"source_ds_properties_parameters_folderName_defaultValue": {
+			"type": "string",
+			"defaultValue": "source"
+		},
+		"source_ds_properties_parameters_fileName_defaultValue": {
+			"type": "string",
+			"defaultValue": "employee_data_dev.csv"
+		},
 		"dev_ls_properties_typeProperties_serviceEndpoint": {
 			"type": "string",
 			"defaultValue": "https://devstaccouint.blob.core.windows.net/"
@@ -40,6 +56,18 @@
 					},
 					"dev_ls_properties_typeProperties_serviceEndpoint": {
 						"value": "[parameters('dev_ls_properties_typeProperties_serviceEndpoint')]"
+					},
+					"destination_ds_properties_parameters_folderName_defaultValue": {
+						"value": "[parameters('destination_ds_properties_parameters_folderName_defaultValue')]"
+					},
+					"destination_ds_properties_parameters_fileName_defaultValue": {
+						"value": "[parameters('destination_ds_properties_parameters_fileName_defaultValue')]"
+					},
+					"source_ds_properties_parameters_folderName_defaultValue": {
+						"value": "[parameters('source_ds_properties_parameters_folderName_defaultValue')]"
+					},
+					"source_ds_properties_parameters_fileName_defaultValue": {
+						"value": "[parameters('source_ds_properties_parameters_fileName_defaultValue')]"
 					}
 				}
 			},
