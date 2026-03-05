@@ -1,13 +1,16 @@
 {
-	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-	"contentVersion": "1.0.0.0",
-	"parameters": {
-		"factoryName": {
-			"value": "dev-adf-env-001"
-		},
-		"dev_ls_properties_typeProperties_serviceEndpoint": {
-			"value": "https://devstaccouint.blob.core.windows.net/"
-		}
-	}
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "factoryName": { "value": "dev-adf-env-001" },
+    "dev_ls_properties_typeProperties_serviceEndpoint": {
+      "value": "https://devstaccouint.blob.core.windows.net/"
+    },
+    "source_folderName": { "value": "sourcedata" },
+    "source_fileName":   { "value": "employee_data_dev.csv" },
+    "dest_folderName":   { "value": "dest" },
+    "dest_fileName":     { "value": "employee_data_dev.csv" }
+  }
 }
+
 
