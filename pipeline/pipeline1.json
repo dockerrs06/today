@@ -62,7 +62,7 @@
 						"referenceName": "destination_ds",
 						"type": "DatasetReference",
 						"parameters": {
-							"folderName": "source",
+							"folderName": "destination",
 							"fileName": "employee_data_dev.csv"
 						}
 					}
