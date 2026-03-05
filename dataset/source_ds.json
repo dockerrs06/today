@@ -5,6 +5,16 @@
 			"referenceName": "dev_ls",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"folderName": {
+				"type": "string",
+				"defaultValue": "source"
+			},
+			"fileName": {
+				"type": "string",
+				"defaultValue": "employee_data_dev.csv"
+			}
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
