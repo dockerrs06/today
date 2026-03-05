@@ -1,0 +1,23 @@
+{
+	"name": "destination_ds",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "dev_ls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "@dataset().fileName",
+				"container": "@dataset().folderName"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
