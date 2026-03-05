@@ -53,7 +53,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"folderName": "source",
-							"fileName": "employee_data_dev.csv"
+							"fileName": "employee_data_itg.csv"
 						}
 					}
 				],
@@ -63,7 +63,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"folderName": "destination",
-							"fileName": "employee_data_dev.csv"
+							"fileName": "employee_data_itg.csv"
 						}
 					}
 				]
