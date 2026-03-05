@@ -1,0 +1,11 @@
+{
+	"name": "dev_ls",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"serviceEndpoint": "https://devstaccouint.blob.core.windows.net/",
+			"accountKind": "StorageV2"
+		}
+	}
+}
