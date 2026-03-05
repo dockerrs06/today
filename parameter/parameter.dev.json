@@ -7,7 +7,7 @@
     },
 
     "dev_ls_properties_typeProperties_serviceEndpoint": {
-      "value": "https://devstaccount.blob.core.windows.net/"
+      "value": "https://devstaccouint.blob.core.windows.net"
     },
 
     "source_ds_properties_parameters_folderName_defaultValue": {
